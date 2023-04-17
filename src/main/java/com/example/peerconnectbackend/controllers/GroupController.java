@@ -138,4 +138,31 @@ public class GroupController {
         }
     }
 
+    @PutMapping("/refuse")
+    public ResponseEntity<String> refuse(
+            @RequestParam String userId,
+            @RequestParam String groupId
+    ){
+        try{
+
+            User user = userRepository.findById(userId).orElse(null);
+            Group group = groupRepository.findById(groupId).orElse(null);
+
+            GroupUser groupUser = groupUserRepository.findByUserIdAndGroupId(userId, groupId).orElse(null);
+
+            groupUserRepository.delete(groupUser);
+
+            return new ResponseEntity<>(
+                    "User " + user.getFirstName() + " was successfully removed from the group " + group.getName(),
+                    HttpStatus.OK
+            );
+        }
+        catch (Exception e){
+            return new ResponseEntity<>(
+                    e.getMessage(),
+                    HttpStatus.INTERNAL_SERVER_ERROR
+            );
+        }
+    }
+
 }
