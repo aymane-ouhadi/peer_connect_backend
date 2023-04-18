@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Document(collection = "like")
+@Document(collection = "comment")
 @Builder
 public class Comment {
 

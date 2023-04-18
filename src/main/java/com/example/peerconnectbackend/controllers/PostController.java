@@ -2,10 +2,16 @@ package com.example.peerconnectbackend.controllers;
 
 import com.example.peerconnectbackend.entities.*;
 import com.example.peerconnectbackend.models.CreateCommentModel;
+import com.example.peerconnectbackend.models.PostDetailsModel;
 import com.example.peerconnectbackend.repositories.*;
+import com.example.peerconnectbackend.utils.Functions;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @RestController
 @RequestMapping("/posts")
@@ -17,12 +23,18 @@ public class PostController {
 
     private final GroupUserRepository groupUserRepository;
 
+    private final GroupRepository groupRepository;
+
+    private final UserRepository userRepository;
+
     private final LikeRepository likeRepository;
 
-    public PostController(PostRepository postRepository, CommentRepository commentRepository, GroupUserRepository groupUserRepository, LikeRepository likeRepository) {
+    public PostController(PostRepository postRepository, CommentRepository commentRepository, GroupUserRepository groupUserRepository, GroupRepository groupRepository, UserRepository userRepository, LikeRepository likeRepository) {
         this.postRepository = postRepository;
         this.commentRepository = commentRepository;
         this.groupUserRepository = groupUserRepository;
+        this.groupRepository = groupRepository;
+        this.userRepository = userRepository;
         this.likeRepository = likeRepository;
     }
 
@@ -128,6 +140,93 @@ public class PostController {
                     HttpStatus.INTERNAL_SERVER_ERROR
             );
         }
+    }
+
+    @GetMapping("/recent")
+    public ResponseEntity<List<Post>> recent(
+        @RequestParam String userId
+    ){
+        try{
+
+            List<Post> recentPosts = new ArrayList<>();
+
+            //Getting the ids of the groups the user is in
+            List<String> userGroupsIds = groupUserRepository
+                    .findAllByUserId(userId)
+                    .stream()
+                    .map(GroupUser::getGroupId)
+                    .toList();
+
+            System.out.println("Groups Ids : " + userGroupsIds);
+
+            //Getting recent posts in every group
+            for(String groupId : userGroupsIds){
+
+                LocalDateTime now = LocalDateTime.now();
+
+                List<Post> recentPostsInGroup = postRepository.findBy_publishedAtBetweenAndGroupId(
+                    now.minusDays(2),
+                    now,
+                    groupId
+                );
+
+                recentPosts.addAll(recentPostsInGroup);
+            }
+
+            System.out.println("Recent posts : " + recentPosts);
+
+            return new ResponseEntity<>(
+                    Functions.sortPostsByPublishedDate(recentPosts),
+                    HttpStatus.OK
+            );
+
+        }
+        catch(Exception e){
+            return new ResponseEntity<>(
+                    new ArrayList<>(),
+                    HttpStatus.INTERNAL_SERVER_ERROR
+            );
+        }
+    }
+
+    @GetMapping("/details")
+    public ResponseEntity<PostDetailsModel> details(
+        @RequestParam String postId
+    ){
+
+        try{
+
+            Post post = postRepository.findById(postId).orElse(null);
+
+            Group group = groupRepository.findById(post.getGroupId()).orElse(null);
+
+            User user = userRepository.findById(post.getUserId()).orElse(null);
+
+            List<Comment> comments = commentRepository.findAllByPostId(postId);
+
+            List<Like> likes = likeRepository.findAllByPostId(postId);
+
+            PostDetailsModel postDetailsModel = PostDetailsModel.builder()
+                    .post(post)
+                    .group(group)
+                    .user(user)
+                    .comments(comments)
+                    .likes(likes)
+                    .build();
+
+            return new ResponseEntity<>(
+                    postDetailsModel,
+                    HttpStatus.INTERNAL_SERVER_ERROR
+            );
+
+        }
+        catch (Exception e){
+            return new ResponseEntity<>(
+                    new PostDetailsModel(),
+                    HttpStatus.INTERNAL_SERVER_ERROR
+            );
+        }
+
     }
 
 }

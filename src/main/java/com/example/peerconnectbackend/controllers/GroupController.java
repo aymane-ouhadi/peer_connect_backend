@@ -138,7 +138,7 @@ public class GroupController {
         }
     }
 
-    @PutMapping("/refuse")
+    @PutMapping("/ban")
     public ResponseEntity<String> refuse(
             @RequestParam String userId,
             @RequestParam String groupId
