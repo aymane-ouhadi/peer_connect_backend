@@ -10,9 +10,7 @@ import java.util.List;
 public class Functions {
 
     public static boolean isEmail(String email) {
-        String emailRegex = "^[a-zA-Z0-9_+&*-]+(?:\\." +
-                "[a-zA-Z0-9_+&*-]+)*@" +
-                "(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$";
+        String emailRegex = "^[a-zA-Z0-9._%+-]+@gmail\\.com$";
 
         return email.matches(emailRegex);
     }

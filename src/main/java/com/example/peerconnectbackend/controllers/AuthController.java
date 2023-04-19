@@ -5,6 +5,7 @@ import com.example.peerconnectbackend.models.LoginUserModel;
 import com.example.peerconnectbackend.models.SignUpUserModel;
 import com.example.peerconnectbackend.repositories.UserRepository;
 import com.example.peerconnectbackend.utils.Functions;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -16,6 +17,9 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/auth")
 public class AuthController {
+
+    @Value("${spring.mail.username}")
+    private String senderEmail;
 
     private final UserRepository userRepository;
 
@@ -48,6 +52,15 @@ public class AuthController {
                 );
             }
 
+            //Checking if a user with the same email already exists
+            User existingUser = userRepository.findByEmail(userModel.getEmail());
+            if(existingUser != null){
+                return new ResponseEntity<>(
+                        "Email is already associated to another user",
+                        HttpStatus.CONFLICT
+                );
+            }
+
             //Encoding the password
             String encodedPassword = passwordEncoder.encode(userModel.getPassword());
 
@@ -62,6 +75,9 @@ public class AuthController {
                     .coverPicture(userModel.getCoverPicture())
                     .build();
 
+            //Insert email verification process here
+
+            //Saving the user
             userRepository.save(user);
 
             return new ResponseEntity<>(
