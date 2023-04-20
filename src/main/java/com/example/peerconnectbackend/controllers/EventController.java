@@ -4,6 +4,7 @@ import com.example.peerconnectbackend.entities.Attendee;
 import com.example.peerconnectbackend.entities.Event;
 import com.example.peerconnectbackend.entities.GroupUser;
 import com.example.peerconnectbackend.entities.Post;
+import com.example.peerconnectbackend.enumerations.RequestState;
 import com.example.peerconnectbackend.enumerations.Role;
 import com.example.peerconnectbackend.repositories.AttendeeRepository;
 import com.example.peerconnectbackend.repositories.EventRepository;
@@ -71,7 +72,7 @@ public class EventController {
 
             Event event = eventRepository.findById(eventId).orElse(null);
 
-            GroupUser groupUser = groupUserRepository.findByUserIdAndGroupId(userId, event.getGroupId()).orElse(null);
+            GroupUser groupUser = groupUserRepository.findByUserIdAndGroupIdAndRequestState(userId, event.getGroupId(), RequestState.ACCEPTED).orElse(null);
 
             if(groupUser == null){
                 return new ResponseEntity<>(

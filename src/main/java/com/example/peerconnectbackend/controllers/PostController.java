@@ -1,6 +1,7 @@
 package com.example.peerconnectbackend.controllers;
 
 import com.example.peerconnectbackend.entities.*;
+import com.example.peerconnectbackend.enumerations.RequestState;
 import com.example.peerconnectbackend.models.CreateCommentModel;
 import com.example.peerconnectbackend.models.PostDetailsModel;
 import com.example.peerconnectbackend.repositories.*;
@@ -69,7 +70,7 @@ public class PostController {
 
             Post post = postRepository.findById(postId).orElse(null);
 
-            GroupUser groupUser = groupUserRepository.findByUserIdAndGroupId(userId, post.getGroupId()).orElse(null);
+            GroupUser groupUser = groupUserRepository.findByUserIdAndGroupIdAndRequestState(userId, post.getGroupId(), RequestState.ACCEPTED).orElse(null);
 
             if(groupUser == null){
                 return new ResponseEntity<>(

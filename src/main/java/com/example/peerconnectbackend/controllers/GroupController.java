@@ -8,6 +8,7 @@ import com.example.peerconnectbackend.entities.User;
 import com.example.peerconnectbackend.enumerations.RequestState;
 import com.example.peerconnectbackend.enumerations.Role;
 import com.example.peerconnectbackend.models.CreateGroupModel;
+import com.example.peerconnectbackend.models.GroupSearchModel;
 import com.example.peerconnectbackend.repositories.GroupRepository;
 import com.example.peerconnectbackend.repositories.GroupUserRepository;
 import com.example.peerconnectbackend.repositories.RuleRepository;
@@ -166,15 +167,33 @@ public class GroupController {
     }
 
     @GetMapping("/search")
-    public ResponseEntity<List<Group>> search(
-            @RequestParam String q
+    public ResponseEntity<List<GroupSearchModel>> search(
+            @RequestParam String q,
+            @RequestParam String userId
     ){
         try{
 
             List<Group> groups = groupRepository.findByNameFuzzy(q);
 
+
+            List<GroupSearchModel> groupSearchList = groups
+                    .stream()
+                    .map(
+                            group -> GroupSearchModel.builder()
+                                    .group(group)
+                                    .isMember(
+                                            groupUserRepository.findByUserIdAndGroupIdAndRequestState(
+                                                    userId,
+                                                    group.getId(),
+                                                    RequestState.ACCEPTED
+                                            ).orElse(null) != null
+                                    )
+                                    .build()
+                    )
+                    .toList();
+
             return new ResponseEntity<>(
-                    groups,
+                    groupSearchList,
                     HttpStatus.OK
             );
         }
