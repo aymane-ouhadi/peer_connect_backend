@@ -40,8 +40,10 @@ public class EventController {
         @RequestBody Event event
     ){
         try {
+            //Retrieving the groupUser from userId
             GroupUser groupUser = groupUserRepository.findByUserId(event.getUserId()).orElse(null);
 
+            //Checking if the user who wants to create the event is an admin
             if(groupUser.getRole() != Role.ADMIN){
                 return new ResponseEntity<>(
                         "Only admins can create events",
@@ -49,7 +51,9 @@ public class EventController {
                 );
             }
 
+            //Storing the event in the database
             eventRepository.save(event);
+
             return new ResponseEntity<>(
                     "Event created successfully",
                     HttpStatus.OK
@@ -70,10 +74,13 @@ public class EventController {
     ){
         try{
 
+            //Retrieving the event from the eventId provided
             Event event = eventRepository.findById(eventId).orElse(null);
 
+            //Retrieving the GroupUser
             GroupUser groupUser = groupUserRepository.findByUserIdAndGroupIdAndRequestState(userId, event.getGroupId(), RequestState.ACCEPTED).orElse(null);
 
+            //Not letting a user to attend a meeting in a group he's not in
             if(groupUser == null){
                 return new ResponseEntity<>(
                         "You can't attend an event in a group you're not in",
@@ -81,8 +88,10 @@ public class EventController {
                 );
             }
 
+            //Checking if the user is already going to the event
             Attendee alreadyGoing = attendeeRepository.findByUserIdAndEventId(userId, eventId).orElse(null);
 
+            //Removing the user from the attendees list
             if(alreadyGoing != null){
                 return new ResponseEntity<>(
                         "You're no longer in the attendee list",
@@ -90,6 +99,7 @@ public class EventController {
                 );
             }
 
+            //Building the attendee entity and storing to the database
             Attendee attendee = Attendee.builder()
                     .userId(userId)
                     .eventId(eventId)

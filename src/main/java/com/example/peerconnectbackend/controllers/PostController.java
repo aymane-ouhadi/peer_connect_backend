@@ -59,6 +59,7 @@ public class PostController {
         }
     }
 
+    //This route works for both liking and unliking the post (basically a toggle route)
     @PostMapping("/like")
     public ResponseEntity<String> like(
         @RequestParam String userId,
@@ -66,12 +67,14 @@ public class PostController {
     ){
         try{
 
+            //Checking if the user already liked the post
             Like existentLike = likeRepository.findByUserIdAndPostId(userId, postId).orElse(null);
 
             Post post = postRepository.findById(postId).orElse(null);
 
             GroupUser groupUser = groupUserRepository.findByUserIdAndGroupIdAndRequestState(userId, post.getGroupId(), RequestState.ACCEPTED).orElse(null);
 
+            //Not allowing the user to like a post in a group he's not in
             if(groupUser == null){
                 return new ResponseEntity<>(
                         "You can't like a post in a group you're not in",
@@ -79,6 +82,7 @@ public class PostController {
                 );
             }
 
+            //If the user hasn't already liked the post
             if(existentLike == null){
                 Like like = Like.builder()
                         .userId(userId)
@@ -93,6 +97,7 @@ public class PostController {
                 );
             }
 
+            //Unliking the post if the user already liked the post
             likeRepository.delete(existentLike);
 
             return new ResponseEntity<>(
@@ -114,6 +119,7 @@ public class PostController {
     ){
         try{
 
+            //Checking if the user provided the comment field
             if(commentModel.getComment() == null){
                 return new ResponseEntity<>(
                     "Comment field is required",
@@ -121,6 +127,7 @@ public class PostController {
                 );
             }
 
+            //Saving the comment to the database
             Comment comment = Comment.builder()
                     .userId(commentModel.getUserId())
                     .postId(commentModel.getPostId())

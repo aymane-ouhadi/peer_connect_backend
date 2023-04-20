@@ -11,4 +11,8 @@ import java.util.List;
 public interface EventRepository extends MongoRepository<Event, String> {
 
     List<Event> findBy_publishedAtBetweenAndGroupId(LocalDateTime start, LocalDateTime end, String groupId);
+
+//    List<Event> findAllByGroupIdOrderBy_publishedAtDesc(String groupId);
+
+    List<Event> findAllByGroupId(String groupId);
 }

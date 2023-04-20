@@ -151,17 +151,25 @@ public class AuthController {
             @RequestParam String userId
     ){
         try{
+            //Retrieveing the user from the id
             User user = userRepository.findById(userId).orElse(null);
 
+            //Get all groups of the user (GroupUser Collection) and mapping them to a list of group ids
             List<String> groupIds = groupUserRepository
                     .findAllByUserIdAndRequestState(userId, RequestState.ACCEPTED)
                     .stream().map(GroupUser::getGroupId).toList();
 
+            //Mapping the group ids to the group objects
+            //but taking only the first min(originalSize, 6)
+            //to make my life easier in the frontend
+            // (mobile application but I might work on a website later when I get more inspiration :3 )
             List<Group> groups = groupIds
                     .stream()
                     .map(groupId -> groupRepository.findById(groupId).orElse(null))
-                    .toList();
+                    .toList()
+                    .subList(0, Math.min(groupIds.size(), 6));
 
+            //Building the profile model to send to the frontend
             UserProfileModel userProfileModel = UserProfileModel
                     .builder()
                     .user(user)

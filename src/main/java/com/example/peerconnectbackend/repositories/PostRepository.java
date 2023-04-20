@@ -15,4 +15,7 @@ public interface PostRepository extends MongoRepository<Post, String> {
 
     List<Post> findBy_publishedAtBetweenAndGroupId(LocalDateTime start, LocalDateTime end, String groupId);
 
+//    List<Post> findAllByGroupIdOrderBy_publishedAtDesc(String groupId);
+
+    List<Post> findAllByGroupId(String groupId);
 }

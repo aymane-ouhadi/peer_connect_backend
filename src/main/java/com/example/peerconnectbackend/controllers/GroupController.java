@@ -1,18 +1,13 @@
 package com.example.peerconnectbackend.controllers;
 
 
-import com.example.peerconnectbackend.entities.Group;
-import com.example.peerconnectbackend.entities.GroupUser;
-import com.example.peerconnectbackend.entities.Rule;
-import com.example.peerconnectbackend.entities.User;
+import com.example.peerconnectbackend.entities.*;
 import com.example.peerconnectbackend.enumerations.RequestState;
 import com.example.peerconnectbackend.enumerations.Role;
 import com.example.peerconnectbackend.models.CreateGroupModel;
+import com.example.peerconnectbackend.models.GroupDetailsModel;
 import com.example.peerconnectbackend.models.GroupSearchModel;
-import com.example.peerconnectbackend.repositories.GroupRepository;
-import com.example.peerconnectbackend.repositories.GroupUserRepository;
-import com.example.peerconnectbackend.repositories.RuleRepository;
-import com.example.peerconnectbackend.repositories.UserRepository;
+import com.example.peerconnectbackend.repositories.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -25,16 +20,24 @@ import java.util.List;
 public class GroupController {
 
     private final UserRepository userRepository;
+
     private final GroupRepository groupRepository;
+
     private final RuleRepository ruleRepository;
+
+    private final EventRepository eventRepository;
+
+    private final PostRepository postRepository;
 
     private final GroupUserRepository groupUserRepository;
 
 
-    public GroupController(UserRepository userRepository, GroupRepository groupRepository, RuleRepository ruleRepository, GroupUserRepository groupUserRepository) {
+    public GroupController(UserRepository userRepository, GroupRepository groupRepository, RuleRepository ruleRepository, EventRepository eventRepository, PostRepository postRepository, GroupUserRepository groupUserRepository) {
         this.userRepository = userRepository;
         this.groupRepository = groupRepository;
         this.ruleRepository = ruleRepository;
+        this.eventRepository = eventRepository;
+        this.postRepository = postRepository;
         this.groupUserRepository = groupUserRepository;
     }
 
@@ -88,6 +91,7 @@ public class GroupController {
             @RequestParam String groupId
     ){
         try{
+            //Joining the provided user to the provided group and setting the request to its default state (pending)
             GroupUser groupUser = GroupUser.builder()
                     .userId(userId)
                     .groupId(groupId)
@@ -95,6 +99,7 @@ public class GroupController {
                     .requestState(RequestState.PENDING)
                     .build();
 
+            //Saving the entity to the database
             groupUserRepository.save(groupUser);
 
             return new ResponseEntity<>(
@@ -122,8 +127,10 @@ public class GroupController {
 
             GroupUser groupUser = groupUserRepository.findByUserIdAndGroupId(userId, groupId).orElse(null);
 
+            //Changing the requestState of the user who wants to join to ACCEPTED
             groupUser.setRequestState(RequestState.ACCEPTED);
 
+            //Updating the changes
             groupUserRepository.save(groupUser);
 
             return new ResponseEntity<>(
@@ -139,6 +146,7 @@ public class GroupController {
         }
     }
 
+    //This route will work for both refusing to add a user and banning him from the group (win win :))
     @PutMapping("/ban")
     public ResponseEntity<String> refuse(
             @RequestParam String userId,
@@ -151,6 +159,7 @@ public class GroupController {
 
             GroupUser groupUser = groupUserRepository.findByUserIdAndGroupId(userId, groupId).orElse(null);
 
+            //Deleting the groupUser entity from the database
             groupUserRepository.delete(groupUser);
 
             return new ResponseEntity<>(
@@ -173,9 +182,10 @@ public class GroupController {
     ){
         try{
 
+            //Retrieving the groups from the user query
             List<Group> groups = groupRepository.findByNameFuzzy(q);
 
-
+            //Mapping the list from a list of Groups to GroupSearchModel for the frontend
             List<GroupSearchModel> groupSearchList = groups
                     .stream()
                     .map(
@@ -200,6 +210,38 @@ public class GroupController {
         catch (Exception e){
             return new ResponseEntity<>(
                     new ArrayList<>(),
+                    HttpStatus.INTERNAL_SERVER_ERROR
+            );
+        }
+    }
+
+    @GetMapping("/details")
+    public ResponseEntity<GroupDetailsModel> details(
+            @RequestParam String groupId
+    ){
+        try{
+
+            Group group = groupRepository.findById(groupId).orElse(null);
+
+            List<Event> events = eventRepository.findAllByGroupId(groupId);
+
+            List<Post> posts = postRepository.findAllByGroupId(groupId);
+
+            GroupDetailsModel groupDetailsModel = GroupDetailsModel.builder()
+                    .group(group)
+                    .events(events)
+                    .posts(posts)
+                    .build();
+
+            return new ResponseEntity<>(
+                    groupDetailsModel,
+                    HttpStatus.INTERNAL_SERVER_ERROR
+            );
+
+        }
+        catch (Exception e){
+            return new ResponseEntity<>(
+                    new GroupDetailsModel(),
                     HttpStatus.INTERNAL_SERVER_ERROR
             );
         }
