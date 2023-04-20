@@ -165,4 +165,25 @@ public class GroupController {
         }
     }
 
+    @GetMapping("/search")
+    public ResponseEntity<List<Group>> search(
+            @RequestParam String q
+    ){
+        try{
+
+            List<Group> groups = groupRepository.findByNameFuzzy(q);
+
+            return new ResponseEntity<>(
+                    groups,
+                    HttpStatus.OK
+            );
+        }
+        catch (Exception e){
+            return new ResponseEntity<>(
+                    new ArrayList<>(),
+                    HttpStatus.INTERNAL_SERVER_ERROR
+            );
+        }
+    }
+
 }
