@@ -1,18 +1,23 @@
 package com.example.peerconnectbackend.controllers;
 
+import com.example.peerconnectbackend.entities.Group;
+import com.example.peerconnectbackend.entities.GroupUser;
 import com.example.peerconnectbackend.entities.User;
+import com.example.peerconnectbackend.enumerations.RequestState;
 import com.example.peerconnectbackend.models.LoginUserModel;
 import com.example.peerconnectbackend.models.SignUpUserModel;
+import com.example.peerconnectbackend.models.UserProfileModel;
+import com.example.peerconnectbackend.repositories.GroupRepository;
+import com.example.peerconnectbackend.repositories.GroupUserRepository;
 import com.example.peerconnectbackend.repositories.UserRepository;
 import com.example.peerconnectbackend.utils.Functions;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/auth")
@@ -23,10 +28,16 @@ public class AuthController {
 
     private final UserRepository userRepository;
 
+    private final GroupUserRepository groupUserRepository;
+
+    private final GroupRepository groupRepository;
+
     private final PasswordEncoder passwordEncoder;
 
-    public AuthController(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public AuthController(UserRepository userRepository, GroupUserRepository groupUserRepository, GroupRepository groupRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
+        this.groupUserRepository = groupUserRepository;
+        this.groupRepository = groupRepository;
         this.passwordEncoder = passwordEncoder;
     }
 
@@ -132,6 +143,44 @@ public class AuthController {
                     HttpStatus.INTERNAL_SERVER_ERROR
             );
         }
+
+    }
+
+    @GetMapping("/user")
+    public ResponseEntity<UserProfileModel> search(
+            @RequestParam String userId
+    ){
+        try{
+            User user = userRepository.findById(userId).orElse(null);
+
+            List<String> groupIds = groupUserRepository
+                    .findAllByUserIdAndRequestState(userId, RequestState.ACCEPTED)
+                    .stream().map(GroupUser::getGroupId).toList();
+
+            List<Group> groups = groupIds
+                    .stream()
+                    .map(groupId -> groupRepository.findById(groupId).orElse(null))
+                    .toList();
+
+            UserProfileModel userProfileModel = UserProfileModel
+                    .builder()
+                    .user(user)
+                    .groups(groups)
+                    .build();
+
+            return new ResponseEntity<>(
+                    userProfileModel,
+                    HttpStatus.OK
+            );
+        }
+        catch (Exception e){
+            return new ResponseEntity<>(
+                    new UserProfileModel(),
+                    HttpStatus.OK
+            );
+        }
+
+
 
     }
 

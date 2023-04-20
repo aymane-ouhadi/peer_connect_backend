@@ -1,5 +1,6 @@
 package com.example.peerconnectbackend.repositories;
 
+import com.example.peerconnectbackend.entities.Group;
 import com.example.peerconnectbackend.entities.GroupUser;
 import com.example.peerconnectbackend.enumerations.RequestState;
 import org.springframework.data.mongodb.repository.MongoRepository;
@@ -18,4 +19,7 @@ public interface GroupUserRepository extends MongoRepository<GroupUser, String> 
     Optional<GroupUser> findByUserIdAndGroupIdAndRequestState(String userId, String groupId, RequestState state);
 
     List<GroupUser> findAllByUserId(String userId);
+
+    List<GroupUser> findAllByUserIdAndRequestState(String userId, RequestState requestState);
+
 }
