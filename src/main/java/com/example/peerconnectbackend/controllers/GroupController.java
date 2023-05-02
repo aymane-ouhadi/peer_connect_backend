@@ -217,7 +217,8 @@ public class GroupController {
 
     @GetMapping("/details")
     public ResponseEntity<GroupDetailsModel> details(
-            @RequestParam String groupId
+            @RequestParam String groupId,
+            @RequestParam String userId
     ){
         try{
 
@@ -225,11 +226,28 @@ public class GroupController {
 
             List<Event> events = eventRepository.findAllByGroupId(groupId);
 
+            boolean isMember = groupUserRepository.findByUserIdAndGroupIdAndRequestState(
+                    userId,
+                    groupId,
+                    RequestState.ACCEPTED
+            ).isPresent();
+
+            List<User> members = groupUserRepository.findAllByGroupIdAndRequestState(
+                groupId,
+                RequestState.ACCEPTED
+            )
+                    .stream().map(
+                    groupUser -> userRepository.findById(groupUser.getUserId()).orElse(null)
+            )
+            .toList();;
+
             List<Post> posts = postRepository.findAllByGroupId(groupId);
 
             GroupDetailsModel groupDetailsModel = GroupDetailsModel.builder()
                     .group(group)
+                    .isMember(isMember)
                     .events(events)
+                    .members(members)
                     .posts(posts)
                     .build();
 

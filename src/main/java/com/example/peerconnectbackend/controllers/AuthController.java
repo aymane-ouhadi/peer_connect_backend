@@ -4,6 +4,7 @@ import com.example.peerconnectbackend.entities.Group;
 import com.example.peerconnectbackend.entities.GroupUser;
 import com.example.peerconnectbackend.entities.User;
 import com.example.peerconnectbackend.enumerations.RequestState;
+import com.example.peerconnectbackend.models.GroupSearchModel;
 import com.example.peerconnectbackend.models.LoginUserModel;
 import com.example.peerconnectbackend.models.SignUpUserModel;
 import com.example.peerconnectbackend.models.UserProfileModel;
@@ -17,6 +18,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -132,7 +134,7 @@ public class AuthController {
 
 
             return new ResponseEntity<>(
-                    "Welcome back, " + user.getFirstName() + "!",
+                    "Welcome back, " +   user.getFirstName() + "!",
                     HttpStatus.OK
             );
 
@@ -190,6 +192,47 @@ public class AuthController {
 
 
 
+    }
+
+    @GetMapping("/groups")
+    public ResponseEntity<List<GroupSearchModel>> groups(
+            @RequestParam String userId
+    ){
+        try{
+
+            //Get all groups of the user (GroupUser Collection) and mapping them to a list of group ids
+            List<String> groupIds = groupUserRepository
+                    .findAllByUserIdAndRequestState(userId, RequestState.ACCEPTED)
+                    .stream().map(GroupUser::getGroupId).toList();
+
+            //Mapping the group ids to the group objects
+            List<Group> groups = groupIds
+                    .stream()
+                    .map(groupId -> groupRepository.findById(groupId).orElse(null))
+                    .toList();
+
+            //Building the profile model to send to the frontend
+            List<GroupSearchModel> groupSearchModels = groups
+                    .stream()
+                    .map(group -> GroupSearchModel
+                            .builder()
+                            .group(group)
+                            .isMember(false)
+                            .build()
+                    )
+                    .toList();
+
+            return new ResponseEntity<>(
+                    groupSearchModels,
+                    HttpStatus.OK
+            );
+        }
+        catch (Exception e){
+            return new ResponseEntity<>(
+                    new ArrayList<>(),
+                    HttpStatus.INTERNAL_SERVER_ERROR
+            );
+        }
     }
 
 }

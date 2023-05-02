@@ -130,6 +130,7 @@ public class PostController {
             //Saving the comment to the database
             Comment comment = Comment.builder()
                     .userId(commentModel.getUserId())
+                    ._publishedAt(LocalDateTime.now())
                     .postId(commentModel.getPostId())
                     .comment(commentModel.getComment())
                     .build();
@@ -224,7 +225,7 @@ public class PostController {
 
             return new ResponseEntity<>(
                     postDetailsModel,
-                    HttpStatus.INTERNAL_SERVER_ERROR
+                    HttpStatus.OK
             );
 
         }

@@ -18,6 +18,8 @@ public class GroupDetailsModel {
 
     private Group group;
 
+    private boolean isMember;
+
     private List<User> members;
 
     private List<Event> events;

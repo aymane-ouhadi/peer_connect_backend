@@ -18,6 +18,8 @@ public interface GroupUserRepository extends MongoRepository<GroupUser, String> 
 
     Optional<GroupUser> findByUserIdAndGroupIdAndRequestState(String userId, String groupId, RequestState state);
 
+    List<GroupUser> findAllByGroupIdAndRequestState(String groupId, RequestState state);
+
     List<GroupUser> findAllByUserId(String userId);
 
     List<GroupUser> findAllByUserIdAndRequestState(String userId, RequestState requestState);

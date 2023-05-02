@@ -41,7 +41,11 @@ public class EventController {
     ){
         try {
             //Retrieving the groupUser from userId
-            GroupUser groupUser = groupUserRepository.findByUserId(event.getUserId()).orElse(null);
+            GroupUser groupUser = groupUserRepository.findByUserIdAndGroupIdAndRequestState(
+                    event.getUserId(),
+                    event.getGroupId(),
+                    RequestState.ACCEPTED
+            ).orElse(null);
 
             //Checking if the user who wants to create the event is an admin
             if(groupUser.getRole() != Role.ADMIN){
