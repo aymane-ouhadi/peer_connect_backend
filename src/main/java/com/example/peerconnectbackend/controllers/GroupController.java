@@ -232,12 +232,24 @@ public class GroupController {
                     RequestState.ACCEPTED
             ).isPresent();
 
+            GroupUser groupUser = groupUserRepository.findByUserId(userId).orElse(null);
+
+            RequestState requestState;
+
+            if (groupUser == null) {
+                requestState = null;
+            }
+            else{
+                requestState = groupUser.getRequestState();
+            }
+
             List<User> members = groupUserRepository.findAllByGroupIdAndRequestState(
                 groupId,
                 RequestState.ACCEPTED
             )
-                    .stream().map(
-                    groupUser -> userRepository.findById(groupUser.getUserId()).orElse(null)
+                    .stream()
+                    .map(
+                        e -> userRepository.findById(e.getUserId()).orElse(null)
             )
             .toList();;
 
@@ -246,6 +258,7 @@ public class GroupController {
             GroupDetailsModel groupDetailsModel = GroupDetailsModel.builder()
                     .group(group)
                     .isMember(isMember)
+                    .requestState(requestState)
                     .events(events)
                     .members(members)
                     .posts(posts)
@@ -253,7 +266,7 @@ public class GroupController {
 
             return new ResponseEntity<>(
                     groupDetailsModel,
-                    HttpStatus.INTERNAL_SERVER_ERROR
+                    HttpStatus.OK
             );
 
         }
@@ -264,5 +277,6 @@ public class GroupController {
             );
         }
     }
+
 
 }
