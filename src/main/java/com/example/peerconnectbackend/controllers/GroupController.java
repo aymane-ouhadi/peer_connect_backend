@@ -232,7 +232,7 @@ public class GroupController {
                     RequestState.ACCEPTED
             ).isPresent();
 
-            GroupUser groupUser = groupUserRepository.findByUserId(userId).orElse(null);
+            GroupUser groupUser = groupUserRepository.findByUserIdAndGroupId(userId, groupId).orElse(null);
 
             RequestState requestState;
 
@@ -271,6 +271,9 @@ public class GroupController {
 
         }
         catch (Exception e){
+
+            System.out.println("e : " + e.getMessage());
+
             return new ResponseEntity<>(
                     new GroupDetailsModel(),
                     HttpStatus.INTERNAL_SERVER_ERROR

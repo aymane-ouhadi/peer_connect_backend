@@ -9,11 +9,13 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import java.util.Properties;
 
 @SpringBootApplication
-public class PeerconnectBackendApplication {
+public class PeerconnectBackendApplication implements WebMvcConfigurer {
 
     @Value("${spring.mail.username}")
     public String email;
@@ -43,6 +45,7 @@ public class PeerconnectBackendApplication {
 
         return mailSender;
     }
+
 
     public static void main(String[] args) {
         SpringApplication.run(PeerconnectBackendApplication.class, args);
