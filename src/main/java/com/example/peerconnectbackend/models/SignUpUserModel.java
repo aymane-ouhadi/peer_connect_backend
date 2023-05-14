@@ -6,7 +6,7 @@ import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor @AllArgsConstructor
-public class SignUpUserModel {
+public class    SignUpUserModel {
 
     private String firstName;
 
