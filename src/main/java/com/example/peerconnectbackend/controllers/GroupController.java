@@ -64,6 +64,7 @@ public class GroupController {
         Group group = Group.builder()
                 .name(groupModel.getName())
                 .description(groupModel.getDescription())
+                .picture(groupModel.getPicture())
                 .rules(rulesIds)
                 .build();
 

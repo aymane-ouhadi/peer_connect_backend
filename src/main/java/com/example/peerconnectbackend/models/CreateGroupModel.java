@@ -18,6 +18,8 @@ public class CreateGroupModel {
 
     private String description;
 
+    private String picture;
+
     private List<String> rulesDescription;
 
 }

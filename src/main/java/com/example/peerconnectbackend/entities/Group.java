@@ -29,6 +29,8 @@ public class Group {
 
     private String description;
 
+    private String picture;
+
     private List<String> rules = new ArrayList<>();
 
 }
