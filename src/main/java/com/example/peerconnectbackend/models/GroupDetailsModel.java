@@ -25,6 +25,8 @@ public class GroupDetailsModel {
 
     private List<User> members;
 
+    private List<User> pending;
+
     private List<Event> events;
 
     private List<Post> posts;

@@ -252,7 +252,17 @@ public class GroupController {
                     .map(
                         e -> userRepository.findById(e.getUserId()).orElse(null)
             )
-            .toList();;
+            .toList();
+
+            List<User> pending = groupUserRepository.findAllByGroupIdAndRequestState(
+                            groupId,
+                            RequestState.PENDING
+                    )
+                    .stream()
+                    .map(
+                            e -> userRepository.findById(e.getUserId()).orElse(null)
+                    )
+                    .toList();;
 
             List<Post> posts = postRepository.findAllByGroupId(groupId);
 
@@ -262,6 +272,7 @@ public class GroupController {
                     .requestState(requestState)
                     .events(events)
                     .members(members)
+                    .pending(pending)
                     .posts(posts)
                     .build();
 
