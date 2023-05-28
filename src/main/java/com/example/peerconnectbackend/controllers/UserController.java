@@ -3,6 +3,7 @@ package com.example.peerconnectbackend.controllers;
 import com.example.peerconnectbackend.entities.Group;
 import com.example.peerconnectbackend.entities.User;
 import com.example.peerconnectbackend.enumerations.RequestState;
+import com.example.peerconnectbackend.models.EditProfileModel;
 import com.example.peerconnectbackend.models.UserProfileModel;
 import com.example.peerconnectbackend.repositories.GroupRepository;
 import com.example.peerconnectbackend.repositories.GroupUserRepository;
@@ -65,6 +66,37 @@ public class UserController {
         catch(Exception e){
             return new ResponseEntity<>(
                     null,
+                    HttpStatus.INTERNAL_SERVER_ERROR
+            );
+        }
+    }
+
+    @PutMapping("/edit")
+    public ResponseEntity<String> edit(
+        @RequestParam String userId,
+        @RequestBody EditProfileModel editProfileModel
+    ){
+
+        try{
+            User user = userRepository.findById(userId).orElse(null);
+
+            user.setFirstName(editProfileModel.getFirstName());
+            user.setLastName(editProfileModel.getLastName());
+            user.setEmail(editProfileModel.getEmail());
+            user.setCollege(editProfileModel.getCollege());
+            user.setMajor(editProfileModel.getMajor());
+
+            userRepository.save(user);
+
+            return new ResponseEntity<>(
+                    "User edited successfully",
+                    HttpStatus.OK
+            );
+
+        }
+        catch(Exception e){
+            return new ResponseEntity<>(
+                    "Something went wrong, try again",
                     HttpStatus.INTERNAL_SERVER_ERROR
             );
         }
