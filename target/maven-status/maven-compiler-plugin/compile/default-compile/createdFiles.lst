@@ -1,6 +1,7 @@
 com\example\peerconnectbackend\entities\Attendee.class
 com\example\peerconnectbackend\models\GroupDetailsModel.class
 com\example\peerconnectbackend\repositories\GroupUserRepository.class
+com\example\peerconnectbackend\models\EditProfileModel.class
 com\example\peerconnectbackend\repositories\CommentRepository.class
 com\example\peerconnectbackend\models\GroupDetailsModel$GroupDetailsModelBuilder.class
 com\example\peerconnectbackend\models\LoginUserModel.class
@@ -33,6 +34,7 @@ com\example\peerconnectbackend\models\PostDetailsModel$PostDetailsModelBuilder.c
 com\example\peerconnectbackend\entities\Event$EventBuilder.class
 com\example\peerconnectbackend\repositories\PostRepository.class
 com\example\peerconnectbackend\entities\Comment.class
+com\example\peerconnectbackend\models\EditProfileModel$EditProfileModelBuilder.class
 com\example\peerconnectbackend\enumerations\Role.class
 com\example\peerconnectbackend\models\CreateGroupModel.class
 com\example\peerconnectbackend\controllers\UserController.class
