@@ -31,4 +31,6 @@ public class GroupDetailsModel {
 
     private List<Post> posts;
 
+    private List<String> rules;
+
 }

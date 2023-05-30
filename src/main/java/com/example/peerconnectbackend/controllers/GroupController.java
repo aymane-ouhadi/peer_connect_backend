@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @RestController
 @RequestMapping("/groups")
@@ -266,6 +267,12 @@ public class GroupController {
 
             List<Post> posts = postRepository.findAllByGroupId(groupId);
 
+            List<String> rules = group
+                    .getRules()
+                    .stream()
+                    .map(rule -> Objects.requireNonNull(ruleRepository.findById(rule).orElse(null)).getDescription())
+                    .toList();
+
             GroupDetailsModel groupDetailsModel = GroupDetailsModel.builder()
                     .group(group)
                     .isMember(isMember)
@@ -273,6 +280,7 @@ public class GroupController {
                     .events(events)
                     .members(members)
                     .pending(pending)
+                    .rules(rules)
                     .posts(posts)
                     .build();
 
