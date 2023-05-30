@@ -273,6 +273,12 @@ public class GroupController {
                     .map(rule -> Objects.requireNonNull(ruleRepository.findById(rule).orElse(null)).getDescription())
                     .toList();
 
+            boolean isAdmin = groupUserRepository.findByUserIdAndGroupIdAndRole(
+                    userId,
+                    groupId,
+                    Role.ADMIN
+            ).isPresent();
+
             GroupDetailsModel groupDetailsModel = GroupDetailsModel.builder()
                     .group(group)
                     .isMember(isMember)
@@ -282,6 +288,7 @@ public class GroupController {
                     .pending(pending)
                     .rules(rules)
                     .posts(posts)
+                    .isAdmin(isAdmin)
                     .build();
 
             return new ResponseEntity<>(

@@ -33,4 +33,6 @@ public class GroupDetailsModel {
 
     private List<String> rules;
 
+    private boolean isAdmin;
+
 }
